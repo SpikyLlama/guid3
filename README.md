@@ -4,7 +4,7 @@ A program made to edit ID3 audio metadata tags using eyed3. Still in early, earl
 - ~~Read tags for a file, not just apply them~~
 - ~~Change window color~~
 - Album art API stuffs
-- JSON settings file
+- ~~.ini settings file~~
 - Edit more complex tags
 - Format the GUI better
 - Make a .exe release
