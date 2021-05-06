@@ -18,6 +18,7 @@ window_color = settings['window_color']['window_hex']
 
 
 def change_bg_color():
+    global color
     color = askcolor(title="Tkinter Color Chooser")
     root.configure(bg=color[1])
     file_choose_label.config(bg=color[1])
@@ -41,6 +42,7 @@ def browse_files():
     audio_file_path = askopenfilename(filetypes=(("Audio Files", "*.mp3"),))
     audio_file = eyed3.load(audio_file_path)
     file_chosen_label = tkinter.Label(root, text=audio_file_path)
+    file_chosen_label.config(bg=color[1])
     file_chosen_label.grid()
     file_chosen = True
     artist_entry.config(state='normal')
