@@ -2,6 +2,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from tkinter.colorchooser import askcolor
+import functools
 import eyed3
 import configparser
 
@@ -11,15 +12,14 @@ root.resizable(0,0)
 audio_file = None
 root.iconbitmap('src/icon32.ico')
 root.title('GUID3')
-file_chosen = False
 settings = configparser.ConfigParser()
 settings_file = settings.read('src/settings.ini')
 window_color = settings['window_color']['window_hex']
 
 
 def change_bg_color():
-    global color
     color = askcolor(title="Tkinter Color Chooser")
+    
     root.configure(bg=color[1])
     file_choose_label.config(bg=color[1])
     artist_label.config(bg=color[1])
@@ -27,32 +27,39 @@ def change_bg_color():
     album_label.config(bg=color[1])
     track_label.config(bg=color[1])
     color_string = ''.join(color[1])
+    
     settings.set('window_color', 'window_hex', color_string)
     with open('src/settings.ini', 'w') as configfile:
         settings.write(configfile)
-    return color
+
+    new_browse_files = functools.partial(browse_files, color)
+    file_choose.config(command=new_browse_files)
 
 
 change_bg_color_button = tkinter.Button(root, text='Select a Color', command=change_bg_color)
 
 
-def browse_files():
-    global audio_file
-    global file_chosen
+def browse_files(color=(None, window_color)):
     audio_file_path = askopenfilename(filetypes=(("Audio Files", "*.mp3"),))
     audio_file = eyed3.load(audio_file_path)
+    
     file_chosen_label = tkinter.Label(root, text=audio_file_path)
     file_chosen_label.config(bg=color[1])
     file_chosen_label.grid()
-    file_chosen = True
+    
     artist_entry.config(state='normal')
     title_entry.config(state='normal')
     album_entry.config(state='normal')
     track_entry.config(state='normal')
-    return file_chosen, audio_file
+    
+    new_all_funcs = functools.partial(all_funcs, audio_file)
+    new_read_all = functools.partial(read_all, audio_file)
+    
+    apply_button.config(command=new_all_funcs)
+    read_tags.config(command=new_read_all)
 
 
-def change_artist():
+def change_artist(audio_file):
     if artist_name.get() == '':
         return
     else:
@@ -60,7 +67,7 @@ def change_artist():
         audio_file.tag.save()
 
 
-def change_title():
+def change_title(audio_file):
     if title_name.get() == '':
         return
     else:
@@ -68,7 +75,7 @@ def change_title():
         audio_file.tag.save()
 
 
-def change_album():
+def change_album(audio_file):
     if album_name.get() == '':
         return
     else:
@@ -76,7 +83,7 @@ def change_album():
         audio_file.tag.save()
 
 
-def change_track():
+def change_track(audio_file):
     try:
         if track_name.get() == '':
             return
@@ -88,7 +95,7 @@ def change_track():
             messagebox.showerror(root, "You must enter a number for track number.")
 
 
-def print_artist():
+def print_artist(audio_file):
     try:
         messagebox.showinfo(root, 'Artist: ' + audio_file.tag.artist)
     except TypeError as t:
@@ -99,7 +106,7 @@ def print_artist():
             messagebox.showerror(root, "Select a file before reading tags.")
 
 
-def print_title():
+def print_title(audio_file):
     try:
         messagebox.showinfo(root, 'Title: ' + audio_file.tag.title)
     except TypeError as t:
@@ -110,7 +117,7 @@ def print_title():
             messagebox.showerror(root, "Select a file before reading tags.")
 
 
-def print_album():
+def print_album(audio_file):
     try:
         messagebox.showinfo(root, 'Album: ' + audio_file.tag.album)
     except TypeError as t:
@@ -121,7 +128,7 @@ def print_album():
             messagebox.showerror(root, "Select a file before reading tags.")
 
 
-def print_track():
+def print_track(audio_file):
     try:
         messagebox.showinfo(root, 'Track #: ' + audio_file.tag.track_num)
     except TypeError as t:
@@ -132,15 +139,15 @@ def print_track():
             messagebox.showerror(root, "Select a file before reading tags.")
 
 
-def read_all():
-    if file_chosen != True:
+def read_all(audio_file=None):
+    if audio_file is None:
         messagebox.showerror(root, "Select a file before reading tags.")
         return
     else:
-        print_artist()
-        print_title()
-        print_album()
-        print_track()
+        print_artist(audio_file)
+        print_title(audio_file)
+        print_album(audio_file)
+        print_track(audio_file)
 
 
 file_choose_label = tkinter.Label(root, text="Song file")
@@ -183,11 +190,11 @@ album_entry.config(state='disabled')
 track_entry.config(state='disabled')
 
 
-def all_funcs():
-    change_artist()
-    change_title()
-    change_album()
-    change_track()
+def all_funcs(audio_file=None):
+    change_artist(audio_file)
+    change_title(audio_file)
+    change_album(audio_file)
+    change_track(audio_file)
 
 
 apply_button = tkinter.Button(root, text="Apply", command=all_funcs)
