@@ -39,7 +39,7 @@ def change_bg_color():
 change_bg_color_button = tkinter.Button(root, text='Select a Color', command=change_bg_color)
 
 
-def browse_files(color=window_color):
+def browse_files(color=(None, window_color)):
     audio_file_path = askopenfilename(filetypes=(("Audio Files", "*.mp3"),))
     audio_file = eyed3.load(audio_file_path)
     
